@@ -6,25 +6,28 @@ load_dotenv()
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-# System messages are a way to give the model a “persona” or instruction that stays the same for the whole conversation.
-messages = [
-    {"role": "system", "content": "You are a helpful Python tutor who explains in very simple language with examples."}
-]
-
 while True:
 
-  user_input = input("Paste your code: ")
+  user_input = input("Paste your notes: ")
 
   if user_input.lower() == "exit":
     break
 
-  messages.append({
+  messages = [{
       "role": "user",
-      "content": f"Explain this code in simple terms, give example and real-world use:\n{user_input}"
-  })
+      "content": f"""
+        Summarize the following text in:
+        1. Simple explanation
+        2. Key bullet points
+        3. Real-world use
+
+        Text:
+        {user_input}
+        """
+  }]
 
   response = client.chat.completions.create(
       model="openai/gpt-oss-120b", messages=messages
   )
 
-  print("AI:", response.choices[0].message.content)
+  print("\n\nAI summary:", response.choices[0].message.content)
