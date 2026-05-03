@@ -13,18 +13,18 @@ messages = [
 
 while True:
 
-  user_input = input("You: ")
+  user_input = input("Paste your code: ")
 
   if user_input.lower() == "exit":
     break
 
-  messages.append({"role": "user", "content": user_input})
+  messages.append({
+      "role": "user",
+      "content": f"Explain this code in simple terms, give example and real-world use:\n{user_input}"
+  })
 
   response = client.chat.completions.create(
       model="openai/gpt-oss-120b", messages=messages
   )
-
-  # More messages = more tokens = slower + costlier
-  messages.append({"role": "assistant", "content": response.choices[0].message.content})
 
   print("AI:", response.choices[0].message.content)
