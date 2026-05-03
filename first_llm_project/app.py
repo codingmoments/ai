@@ -21,6 +21,7 @@ while True:
       model="openai/gpt-oss-120b", messages=messages
   )
 
+  # More messages = more tokens = slower + costlier
   messages.append({"role": "assistant", "content": response.choices[0].message.content})
 
   print("AI:", response.choices[0].message.content)
