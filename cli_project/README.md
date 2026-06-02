@@ -1,11 +1,11 @@
 # MCP Chat
 
-MCP Chat is a command-line interface application that enables interactive chat capabilities with AI models through the Anthropic API. The application supports document retrieval, command-based prompts, and extensible tool integrations via the MCP (Model Control Protocol) architecture.
+MCP Chat is a command-line interface application that enables interactive chat capabilities with AI models through the Groq API. The application supports document retrieval, command-based prompts, and extensible tool integrations via the MCP (Model Control Protocol) architecture.
 
 ## Prerequisites
 
 - Python 3.9+
-- Anthropic API Key
+- Groq API Key
 
 ## Setup
 
@@ -14,14 +14,10 @@ MCP Chat is a command-line interface application that enables interactive chat c
 1. Create or edit the `.env` file in the project root and verify that the following variables are set correctly:
 
 ```
-ANTHROPIC_API_KEY=""  # Enter your Anthropic API secret key
+GROQ_API_KEY=""  # Enter your Groq API secret key
 ```
 
 ### Step 2: Install dependencies
-
-#### Option 1: Setup with uv (Recommended)
-
-[uv](https://github.com/astral-sh/uv) is a fast Python package installer and resolver.
 
 1. Install uv, if not already installed:
 
@@ -46,27 +42,6 @@ uv pip install -e .
 
 ```bash
 uv run main.py
-```
-
-#### Option 2: Setup without uv
-
-1. Create and activate a virtual environment:
-
-```bash
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-```
-
-2. Install dependencies:
-
-```bash
-pip install anthropic python-dotenv prompt-toolkit "mcp[cli]==1.8.0"
-```
-
-3. Run the project
-
-```bash
-python main.py
 ```
 
 ## Usage
