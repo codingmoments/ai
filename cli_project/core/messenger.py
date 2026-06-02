@@ -1,4 +1,5 @@
 ﻿from groq import Groq
+from groq.types.chat import ChatCompletion
 
 class Messenger:
   def __init__(self, model: str):
@@ -10,7 +11,7 @@ class Messenger:
     messages.extend(tool_results)
 
   # Adds the AI's reply to the conversation history, including any tool calls it requested.
-  def add_assistant_message(self, messages: list, response):
+  def add_assistant_message(self, messages: list, response: ChatCompletion):
     msg = response.choices[0].message
     assistant_message = {"role": "assistant", "content": msg.content}
     if msg.tool_calls:
@@ -21,7 +22,7 @@ class Messenger:
     messages.append(assistant_message)
 
   # Extracts the plain text from the AI's response.
-  def text_from_message(self, response) -> str:
+  def text_from_message(self, response: ChatCompletion) -> str:
     return response.choices[0].message.content or ""
 
   # Sends the conversation history to the Groq API and returns the AI's response.
