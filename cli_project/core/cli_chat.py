@@ -2,7 +2,7 @@
 from mcp.types import Prompt, PromptMessage
 
 from core.chat import Chat
-from core.claude import Claude
+from core.messenger import Messenger
 from mcp_client import MCPClient
 
 
@@ -11,7 +11,7 @@ class CliChat(Chat):
       self,
       doc_client: MCPClient,
       clients: dict[str, MCPClient],
-      claude_service: Claude,
+      claude_service: Messenger,
   ):
     super().__init__(clients=clients, claude_service=claude_service)
 

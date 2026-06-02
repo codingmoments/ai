@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from contextlib import AsyncExitStack
 
 from mcp_client import MCPClient
-from core.claude import Claude
+from core.messenger import Messenger
 
 from core.cli_chat import CliChat
 from core.cli import CliApp
@@ -20,7 +20,7 @@ assert groq_model, "Error: GROQ_MODEL cannot be empty. Update .env"
 
 
 async def main():
-  claude_service = Claude(model=groq_model)
+  claude_service = Messenger(model=groq_model)
 
   server_scripts = sys.argv[1:]
   clients = {}

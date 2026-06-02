@@ -1,11 +1,11 @@
-from core.claude import Claude
+﻿from core.messenger import Messenger
 from mcp_client import MCPClient
 from core.tools import ToolManager
 
 
 class Chat:
-  def __init__(self, claude_service: Claude, clients: dict[str, MCPClient]):
-    self.claude_service: Claude = claude_service
+  def __init__(self, claude_service: Messenger, clients: dict[str, MCPClient]):
+    self.claude_service: Messenger = claude_service
     self.clients: dict[str, MCPClient] = clients
     self.messages: list[dict] = []
 
@@ -34,9 +34,7 @@ class Chat:
             self.clients, response
         )
 
-        self.claude_service.add_user_message(
-            self.messages, tool_result_parts
-        )
+        self.claude_service.add_tool_results(self.messages, tool_result_parts)
       else:
         final_text_response = self.claude_service.text_from_message(
             response
