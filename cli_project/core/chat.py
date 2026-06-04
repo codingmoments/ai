@@ -3,13 +3,20 @@ from mcp_client import MCPClient
 from core.tools import ToolManager
 
 
+# The "brain" / conductor of the app: runs the back-and-forth conversation
+# between the user, the AI model, and the tools the AI can use.
 class Chat:
-  def __init__(self, claude_service: Messenger, clients: dict[str, MCPClient]):
-    self.claude_service: Messenger = claude_service
+  def __init__(self, messenger: Messenger, clients: dict[str, MCPClient]):
+    # Talks to the actual AI model (sends messages, gets replies).
+    self.messenger: Messenger = messenger
+    # The tool servers the AI can use, keyed by a name (e.g. "doc_client").
     self.clients: dict[str, MCPClient] = clients
+    # The conversation history / memory. Every message gets appended here so
+    # the AI remembers what was said earlier. Starts empty.
     self.messages: list[dict] = []
 
   async def _process_query(self, query: str):
+    # Add whatever the user typed to the history, tagged as the "user" role.
     self.messages.append({"role": "user", "content": query})
 
   async def run(
@@ -18,27 +25,39 @@ class Chat:
   ) -> str:
     final_text_response = ""
 
+    # 1. Add the user's question to the conversation history.
     await self._process_query(query)
 
+    # 2. Keep looping until the AI gives a final answer. The AI may first ask
+    #    to run one or more tools before it can respond.
     while True:
-      response = self.claude_service.chat(
+      # 3. Send the full conversation (plus the list of available tools) to
+      #    the AI and get its response.
+      response = self.messenger.chat(
           messages=self.messages,
           tools=await ToolManager.get_all_tools(self.clients),
       )
 
-      self.claude_service.add_assistant_message(self.messages, response)
+      # 4. Save the AI's reply (including any tool calls it requested) to history.
+      self.messenger.add_assistant_message(self.messages, response)
 
+      # 5a. The AI wants to use a tool first instead of answering directly.
       if response.choices[0].finish_reason == "tool_calls":
-        print(self.claude_service.text_from_message(response))
+        print(self.messenger.text_from_message(response))
+        # Run the requested tool(s)...
         tool_result_parts = await ToolManager.execute_tool_requests(
             self.clients, response
         )
 
-        self.claude_service.add_tool_results(self.messages, tool_result_parts)
+        # ...feed the results back into the history, then loop again so the
+        # AI can continue now that it has the info it needed.
+        self.messenger.add_tool_results(self.messages, tool_result_parts)
       else:
-        final_text_response = self.claude_service.text_from_message(
+        # 5b. The AI gave a normal text answer, so grab it and stop the loop.
+        final_text_response = self.messenger.text_from_message(
             response
         )
         break
 
+    # 6. Return the AI's final answer.
     return final_text_response
