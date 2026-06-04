@@ -1,4 +1,5 @@
 ﻿from core.messenger import Messenger
+from core.conversation import Conversation
 from mcp_client import MCPClient
 from core.tools import ToolManager
 
@@ -11,13 +12,12 @@ class Chat:
     self.messenger: Messenger = messenger
     # The tool servers the AI can use, keyed by a name (e.g. "doc_client").
     self.clients: dict[str, MCPClient] = clients
-    # The conversation history / memory. Every message gets appended here so
-    # the AI remembers what was said earlier. Starts empty.
-    self.messages: list[dict] = []
+    # Owns the conversation history / memory and all logic for adding to it.
+    self.conversation: Conversation = Conversation()
 
   async def _process_query(self, query: str):
     # Add whatever the user typed to the history, tagged as the "user" role.
-    self.messages.append({"role": "user", "content": query})
+    self.conversation.add_user_message(query)
 
   async def run(
       self,
@@ -34,12 +34,12 @@ class Chat:
       # 3. Send the full conversation (plus the list of available tools) to
       #    the AI and get its response.
       response = self.messenger.chat(
-          messages=self.messages,
+          messages=self.conversation.messages(),
           tools=await ToolManager.get_all_tools(self.clients),
       )
 
       # 4. Save the AI's reply (including any tool calls it requested) to history.
-      self.messenger.add_assistant_message(self.messages, response)
+      self.conversation.add_assistant_message(response)
 
       # 5a. The AI wants to use a tool first instead of answering directly.
       if response.choices[0].finish_reason == "tool_calls":
@@ -51,7 +51,7 @@ class Chat:
 
         # ...feed the results back into the history, then loop again so the
         # AI can continue now that it has the info it needed.
-        self.messenger.add_tool_results(self.messages, tool_result_parts)
+        self.conversation.add_tool_results(tool_result_parts)
       else:
         # 5b. The AI gave a normal text answer, so grab it and stop the loop.
         final_text_response = self.messenger.text_from_message(

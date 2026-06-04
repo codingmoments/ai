@@ -20,7 +20,7 @@ assert groq_model, "Error: GROQ_MODEL cannot be empty. Update .env"
 
 
 async def main():
-  claude_service = Messenger(model=groq_model)
+  messenger = Messenger(model=groq_model)
 
   server_scripts = sys.argv[1:]
   clients = {}
@@ -47,7 +47,7 @@ async def main():
     chat = CliChat(
         doc_client=doc_client,
         clients=clients,
-        claude_service=claude_service,
+        messenger=messenger,
     )
 
     cli = CliApp(chat)

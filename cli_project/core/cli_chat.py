@@ -11,9 +11,9 @@ class CliChat(Chat):
       self,
       doc_client: MCPClient,
       clients: dict[str, MCPClient],
-      claude_service: Messenger,
+      messenger: Messenger,
   ):
-    super().__init__(clients=clients, claude_service=claude_service)
+    super().__init__(messenger=messenger, clients=clients)
 
     self.doc_client: MCPClient = doc_client
 
@@ -58,7 +58,9 @@ class CliChat(Chat):
         command, {"doc_id": words[1]}
     )
 
-    self.messages += convert_prompt_messages_to_message_params(messages)
+    self.conversation.add_message_params(
+        convert_prompt_messages_to_message_params(messages)
+    )
     return True
 
   async def _process_query(self, query: str):
@@ -85,7 +87,7 @@ class CliChat(Chat):
         Don't refer to or mention the provided context in any way - just use it to inform your answer.
         """
 
-    self.messages.append({"role": "user", "content": prompt})
+    self.conversation.add_user_message(prompt)
 
 
 def convert_prompt_message_to_message_param(
