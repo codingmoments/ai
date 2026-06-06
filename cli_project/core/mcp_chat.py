@@ -17,12 +17,11 @@ class MCPChat(Chat):
   def __init__(
       self,
       doc_client: MCPClient,
-      clients: dict[str, MCPClient],
       messenger: Messenger,
   ):
-    # Hand the shared pieces (AI messenger + tool clients) to the base Chat,
+    # Hand the shared pieces (AI messenger + tool client) to the base Chat,
     # which sets up the conversation history and the main loop.
-    super().__init__(messenger=messenger, clients=clients)
+    super().__init__(messenger=messenger, client=doc_client)
 
     # The one MCP client we use specifically for documents and prompts.
     self.doc_client: MCPClient = doc_client

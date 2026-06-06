@@ -1,38 +1,24 @@
 import json
-from typing import Optional, Literal, List
+from typing import Literal, List
 from mcp.types import CallToolResult, TextContent
 from mcp_client import MCPClient
 
 
 class ToolManager:
   @classmethod
-  async def get_all_tools(cls, clients: dict[str, MCPClient]) -> list[dict]:
-    tools = []
-    for client in clients.values():
-      tool_models = await client.list_tools()
-      tools += [
-          {
-              "type": "function",
-              "function": {
-                  "name": t.name,
-                  "description": t.description,
-                  "parameters": t.inputSchema,
-              },
-          }
-          for t in tool_models
-      ]
-    return tools
-
-  @classmethod
-  async def _find_client_with_tool(
-      cls, clients: list[MCPClient], tool_name: str
-  ) -> Optional[MCPClient]:
-    for client in clients:
-      tools = await client.list_tools()
-      tool = next((t for t in tools if t.name == tool_name), None)
-      if tool:
-        return client
-    return None
+  async def get_all_tools(cls, client: MCPClient) -> list[dict]:
+    tool_models = await client.list_tools()
+    return [
+        {
+            "type": "function",
+            "function": {
+                "name": t.name,
+                "description": t.description,
+                "parameters": t.inputSchema,
+            },
+        }
+        for t in tool_models
+    ]
 
   @classmethod
   def _build_tool_result_part(
@@ -49,7 +35,7 @@ class ToolManager:
 
   @classmethod
   async def execute_tool_requests(
-      cls, clients: dict[str, MCPClient], response
+      cls, client: MCPClient, response
   ) -> List[dict]:
     tool_calls = response.choices[0].message.tool_calls or []
     tool_result_blocks: list[dict] = []
@@ -58,18 +44,6 @@ class ToolManager:
       tool_call_id = tc.id
       tool_name = tc.function.name
       tool_input = json.loads(tc.function.arguments)
-
-      client = await cls._find_client_with_tool(
-          list(clients.values()), tool_name
-      )
-
-      if not client:
-        tool_result_blocks.append(
-            cls._build_tool_result_part(
-                tool_call_id, "Could not find that tool", "error"
-            )
-        )
-        continue
 
       try:
         tool_output: CallToolResult | None = await client.call_tool(

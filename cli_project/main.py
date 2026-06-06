@@ -32,14 +32,11 @@ async def main():
     doc_client = await stack.enter_async_context(
         MCPClient.for_document_server()
     )
-    # Collect the tool servers the AI can use, keyed by name.
-    clients = {"doc_client": doc_client}
 
     # The document-aware chat engine: ties the AI, the document server, and the
     # conversation history together.
     chat = MCPChat(
         doc_client=doc_client,
-        clients=clients,
         messenger=messenger,
     )
 

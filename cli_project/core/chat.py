@@ -7,11 +7,11 @@ from core.tools import ToolManager
 # The "brain" / conductor of the app: runs the back-and-forth conversation
 # between the user, the AI model, and the tools the AI can use.
 class Chat:
-  def __init__(self, messenger: Messenger, clients: dict[str, MCPClient]):
+  def __init__(self, messenger: Messenger, client: MCPClient):
     # Talks to the actual AI model (sends messages, gets replies).
     self.messenger: Messenger = messenger
-    # The tool servers the AI can use, keyed by a name (e.g. "doc_client").
-    self.clients: dict[str, MCPClient] = clients
+    # The single MCP tool server the AI can use.
+    self.client: MCPClient = client
     # Owns the conversation history / memory and all logic for adding to it.
     self.conversation: Conversation = Conversation()
 
@@ -35,7 +35,7 @@ class Chat:
       #    the AI and get its response.
       response = self.messenger.chat(
           messages=self.conversation.messages(),
-          tools=await ToolManager.get_all_tools(self.clients),
+          tools=await ToolManager.get_all_tools(self.client),
       )
 
       # 4. Save the AI's reply (including any tool calls it requested) to history.
@@ -46,7 +46,7 @@ class Chat:
         print(self.messenger.text_from_message(response))
         # Run the requested tool(s)...
         tool_result_parts = await ToolManager.execute_tool_requests(
-            self.clients, response
+            self.client, response
         )
 
         # ...feed the results back into the history, then loop again so the

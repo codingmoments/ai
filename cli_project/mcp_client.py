@@ -119,6 +119,8 @@ async def main():
     print("Tools available on server:")
     for tool in result:
       print(f" - {tool.name}: {tool.description}")
+    result = await _client.call_tool("read_document_contents", {"doc_id": "outlook.pdf"})
+    print(f"Document contents: {result}")
 
 
 if __name__ == "__main__":
