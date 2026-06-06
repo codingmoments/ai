@@ -51,7 +51,6 @@ async def main():
     )
 
     cli = CliApp(chat)
-    await cli.initialize()
     await cli.run()
 
 
