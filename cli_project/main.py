@@ -7,7 +7,7 @@ from contextlib import AsyncExitStack
 from mcp_client import MCPClient
 from core.messenger import Messenger
 
-from core.cli_chat import CliChat
+from core.mcp_chat import MCPChat
 from core.cli import CliApp
 
 load_dotenv()
@@ -44,7 +44,7 @@ async def main():
       )
       clients[client_id] = client
 
-    chat = CliChat(
+    chat = MCPChat(
         doc_client=doc_client,
         clients=clients,
         messenger=messenger,

@@ -8,7 +8,7 @@ from prompt_toolkit.auto_suggest import AutoSuggest, Suggestion
 from prompt_toolkit.document import Document
 from prompt_toolkit.buffer import Buffer
 
-from core.cli_chat import CliChat
+from core.mcp_chat import MCPChat
 
 
 class CommandAutoSuggest(AutoSuggest):
@@ -111,7 +111,7 @@ class UnifiedCompleter(Completer):
 
 
 class CliApp:
-  def __init__(self, agent: CliChat):
+  def __init__(self, agent: MCPChat):
     self.agent = agent
     self.resources = []
     self.prompts = []

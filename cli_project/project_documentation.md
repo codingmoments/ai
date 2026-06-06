@@ -77,7 +77,7 @@ main.py  →  starts everything, connects tool servers, creates the chat
 CliApp (core/cli.py)  →  the command-line interface you type into
    │
    ↓
-CliChat (core/cli_chat.py)  →  a specialized version of Chat
+MCPChat (core/mcp_chat.py)  →  a specialized version of Chat
    │  (extends ↓)
 Chat (core/chat.py)  →  runs the conversation loop  ← THIS FILE
    │
@@ -88,4 +88,4 @@ Chat (core/chat.py)  →  runs the conversation loop  ← THIS FILE
 
 So `chat.py` is the **orchestration layer**. It doesn't talk to the AI directly, it doesn't store the history itself, and it doesn't run tools directly — it **coordinates** those helpers in the right order to turn your question into a final answer.
 
-One note: in `main.py`, the app actually uses `CliChat` (in `core/cli_chat.py`), which is a more specialized child of this `Chat` class. So `Chat` here is the **base/foundation** that handles the core conversation loop, and `CliChat` builds extra command-line features on top of it.
+One note: in `main.py`, the app actually uses `MCPChat` (in `core/mcp_chat.py`), which is a more specialized child of this `Chat` class. So `Chat` here is the **base/foundation** that handles the core conversation loop, and `MCPChat` builds extra command-line features on top of it.
