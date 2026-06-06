@@ -1,4 +1,5 @@
 import asyncio
+import os
 from typing import Optional, Any
 from contextlib import AsyncExitStack
 from mcp import ClientSession, StdioServerParameters, types
@@ -17,6 +18,17 @@ class MCPClient:
     self._env = env
     self._session: Optional[ClientSession] = None
     self._exit_stack: AsyncExitStack = AsyncExitStack()
+
+  @classmethod
+  def for_document_server(cls) -> "MCPClient":
+    # The one place that knows how to launch the document server: via "uv" if
+    # USE_UV=1 in the environment, otherwise with plain "python". Both run the
+    # same mcp_server.py file.
+    if os.getenv("USE_UV", "0") == "1":
+      command, args = "uv", ["run", "mcp_server.py"]
+    else:
+      command, args = "python", ["mcp_server.py"]
+    return cls(command=command, args=args)
 
   async def connect(self):
     server_params = StdioServerParameters(
@@ -76,11 +88,7 @@ class MCPClient:
 
 # For testing
 async def main():
-  async with MCPClient(
-      # If using Python without UV, update command to 'python' and remove "run" from args.
-      command="uv",
-      args=["run", "mcp_server.py"],
-  ) as _client:
+  async with MCPClient.for_document_server() as _client:
     pass
 
 

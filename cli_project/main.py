@@ -24,20 +24,13 @@ async def main():
   # The object that sends messages to the Groq AI and gets replies back.
   messenger = Messenger(model=groq_model)
 
-  # Decide how to launch the document server: via "uv" if USE_UV=1 in .env,
-  # otherwise with plain "python". Both run the same mcp_server.py file.
-  command, args = (
-      ("uv", ["run", "mcp_server.py"])
-      if os.getenv("USE_UV", "0") == "1"
-      else ("python", ["mcp_server.py"])
-  )
-
   # AsyncExitStack makes sure the document server is shut down cleanly when we
   # exit this block, even if an error happens.
   async with AsyncExitStack() as stack:
     # Start the MCP document server as a separate process and connect to it.
+    # MCPClient decides internally how to launch it (uv vs python).
     doc_client = await stack.enter_async_context(
-        MCPClient(command=command, args=args)
+        MCPClient.for_document_server()
     )
     # Collect the tool servers the AI can use, keyed by name.
     clients = {"doc_client": doc_client}
