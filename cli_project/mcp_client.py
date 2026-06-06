@@ -1,4 +1,3 @@
-import sys
 import asyncio
 from typing import Optional, Any
 from contextlib import AsyncExitStack
@@ -86,6 +85,4 @@ async def main():
 
 
 if __name__ == "__main__":
-  if sys.platform == "win32":
-    asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
   asyncio.run(main())
