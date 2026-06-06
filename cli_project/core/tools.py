@@ -1,13 +1,12 @@
 import json
-from typing import Literal, List
+from typing import List
 from mcp.types import CallToolResult, TextContent
 from mcp_client import MCPClient
 
 
 class ToolManager:
-  @classmethod
-  async def get_all_tools(cls, client: MCPClient) -> list[dict]:
-    tool_models = await client.list_tools()
+  @staticmethod
+  async def get_all_tools(client: MCPClient) -> list[dict]:
     return [
         {
             "type": "function",
@@ -17,58 +16,31 @@ class ToolManager:
                 "parameters": t.inputSchema,
             },
         }
-        for t in tool_models
+        for t in await client.list_tools()
     ]
 
-  @classmethod
-  def _build_tool_result_part(
-      cls,
-      tool_call_id: str,
-      text: str,
-      status: Literal["success"] | Literal["error"],
-  ) -> dict:
-    return {
-        "role": "tool",
-        "tool_call_id": tool_call_id,
-        "content": text,
-    }
+  @staticmethod
+  def _tool_result(tool_call_id: str, content: str) -> dict:
+    return {"role": "tool", "tool_call_id": tool_call_id, "content": content}
 
   @classmethod
-  async def execute_tool_requests(
-      cls, client: MCPClient, response
-  ) -> List[dict]:
+  async def execute_tool_requests(cls, client: MCPClient, response) -> List[dict]:
     tool_calls = response.choices[0].message.tool_calls or []
-    tool_result_blocks: list[dict] = []
+    results: list[dict] = []
 
     for tc in tool_calls:
-      tool_call_id = tc.id
       tool_name = tc.function.name
-      tool_input = json.loads(tc.function.arguments)
-
       try:
-        tool_output: CallToolResult | None = await client.call_tool(
-            tool_name, tool_input
+        output: CallToolResult | None = await client.call_tool(
+            tool_name, json.loads(tc.function.arguments)
         )
-        items = tool_output.content if tool_output else []
-        content_list = [
-            item.text for item in items if isinstance(item, TextContent)
-        ]
-        tool_result_blocks.append(
-            cls._build_tool_result_part(
-                tool_call_id,
-                json.dumps(content_list),
-                "error" if tool_output and tool_output.isError else "success",
-            )
+        items = output.content if output else []
+        content = json.dumps(
+            [item.text for item in items if isinstance(item, TextContent)]
         )
       except Exception as e:
-        error_message = f"Error executing tool '{tool_name}': {e}"
-        print(error_message)
-        tool_result_blocks.append(
-            cls._build_tool_result_part(
-                tool_call_id,
-                json.dumps({"error": error_message}),
-                "error",
-            )
-        )
+        content = json.dumps({"error": f"Error executing tool '{tool_name}': {e}"})
+        print(content)
+      results.append(cls._tool_result(tc.id, content))
 
-    return tool_result_blocks
+    return results
