@@ -26,4 +26,6 @@ class Messenger:
     if tools:
       params["tools"] = tools
 
+    print(f"Sending to model with params: {params}")
+
     return self.client.chat.completions.create(**params)

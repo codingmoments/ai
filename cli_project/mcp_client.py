@@ -77,14 +77,14 @@ class MCPClient:
     return self._session
 
   async def list_tools(self) -> list[types.Tool]:
-    # TODO: Return a list of tools defined by the MCP server
-    return []
+    result = await self.session().list_tools()
+    return result.tools
 
   async def call_tool(
       self, tool_name: str, tool_input: dict
   ) -> types.CallToolResult | None:
-    # TODO: Call a particular tool and return the result
-    return None
+    print(f"Calling tool '{tool_name}' with input: {tool_input}")
+    return await self.session().call_tool(tool_name, tool_input)
 
   async def list_prompts(self) -> list[types.Prompt]:
     # TODO: Return a list of prompts defined by the MCP server
@@ -115,7 +115,10 @@ class MCPClient:
 # For testing: spin up the document server, connect, then immediately tear down.
 async def main():
   async with MCPClient.for_document_server() as _client:
-    pass
+    result = await _client.list_tools()
+    print("Tools available on server:")
+    for tool in result:
+      print(f" - {tool.name}: {tool.description}")
 
 
 if __name__ == "__main__":

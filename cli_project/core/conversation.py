@@ -45,3 +45,7 @@ class Conversation:
   # Adds pre-built message dicts (e.g. from an MCP prompt command).
   def add_message_params(self, params: list[dict]) -> None:
     self._messages.extend(params)
+
+  # Clears the conversation history.
+  def clear(self) -> None:
+    self._messages.clear()

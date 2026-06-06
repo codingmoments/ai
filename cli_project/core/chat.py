@@ -57,6 +57,7 @@ class Chat:
         final_text_response = self.messenger.text_from_message(
             response
         )
+        self.conversation.clear()  # Clear conversation history after getting the final response
         break
 
     # 6. Return the AI's final answer.
