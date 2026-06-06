@@ -89,3 +89,100 @@ Chat (core/chat.py)  →  runs the conversation loop  ← THIS FILE
 So `chat.py` is the **orchestration layer**. It doesn't talk to the AI directly, it doesn't store the history itself, and it doesn't run tools directly — it **coordinates** those helpers in the right order to turn your question into a final answer.
 
 One note: in `main.py`, the app actually uses `MCPChat` (in `core/mcp_chat.py`), which is a more specialized child of this `Chat` class. So `Chat` here is the **base/foundation** that handles the core conversation loop, and `MCPChat` builds extra command-line features on top of it.
+
+---
+
+## `core/mcp_chat.py`
+
+### What `mcp_chat.py` is
+
+`mcp_chat.py` defines one class called **`MCPChat`**. It is a **document-aware version of `Chat`** — it takes the basic conversation engine from `chat.py` and adds the smarts to handle documents.
+
+The key idea is **inheritance**: `MCPChat` *extends* `Chat` (written as `class MCPChat(Chat)`). That means it automatically gets everything `Chat` can do (the `run` loop, the conversation history, talking to the AI), and only adds the *new* parts on top. It doesn't repeat the conversation logic — it reuses it.
+
+What does it add? Two abilities, both triggered by what the user types:
+
+| You type... | `MCPChat` does... |
+|---|---|
+| `@report.docx` | Fetches that document's text and slips it into the prompt as context |
+| `/summarize report.docx` | Loads a ready-made prompt template from the server and runs it |
+
+To do this it talks to a special **"doc server"** over MCP (the `doc_client`), which stores the documents and prompt templates.
+
+> 💡 **Why the name "MCP"?** MCP (Model Context Protocol) is a standard way for an app to connect to outside "servers" that give the AI extra abilities. Here, one MCP server (`mcp_server.py`) holds the documents. `MCPChat` is the chat class that knows how to ask that server for things.
+
+### Walking through the code
+
+#### The setup (`__init__`)
+```python
+def __init__(self, doc_client, clients, messenger):
+    super().__init__(messenger=messenger, clients=clients)  # let Chat set itself up
+    self.doc_client = doc_client                            # remember the document server
+```
+`super().__init__(...)` is the line that says *"run the parent `Chat`'s setup first"* — that's what creates the conversation history and stores the messenger. Then `MCPChat` saves one extra thing: `doc_client`, the connection it uses to fetch documents and prompts.
+
+#### The little "ask the server" helpers
+These four short methods are simple wrappers around the doc server. Each one asks the server for one specific thing:
+
+| Method | What it fetches |
+|---|---|
+| `list_prompts()` | The available `/commands` (prompt templates) |
+| `list_docs_ids()` | The names of all known documents |
+| `get_doc_content(doc_id)` | The full text of one document |
+| `get_prompt(command, doc_id)` | A filled-in prompt template for a command |
+
+#### Handling `@mentions` (`_extract_resources`)
+```python
+mentions = [word[1:] for word in query.split() if word.startswith("@")]
+```
+This scans your message for any word starting with `@`, and chops off the `@`. So `"summarize @report.docx"` gives `["report.docx"]`. It then fetches each mentioned document that actually exists and wraps them in `<document>` tags, returning one big string of context for the AI to read.
+
+#### Handling `/commands` (`_process_command`)
+If your message is a command like `/summarize report.docx`, this method splits it into the command name (`summarize`) and the document id (`report.docx`), asks the server to build the matching prompt, and adds it straight to the conversation.
+
+> ⚠️ **Known gotcha:** it reads `words[1]` for the document id, so typing a command with no document (just `/summarize`) would cause an error. Worth a guard if commands-without-arguments should be allowed.
+
+#### The decision point (`_process_query`) — the heart of this file
+This method **overrides** the simpler `_process_query` from `Chat`. It runs for every message and decides what kind of message it is:
+
+```python
+async def _process_query(self, query):
+    if query.startswith("/"):          # a command?
+        await self._process_command(query)
+        return
+
+    added_resources = await self._extract_resources(query)   # any @docs?
+    prompt = f"""...{query}...{added_resources}..."""        # wrap question + context
+    self.conversation.add_user_message(prompt)
+```
+
+In plain English:
+1. **Is it a `/command`?** → handle it and stop.
+2. **Otherwise** → gather any `@mentioned` documents, wrap your question together with that document context plus instructions, and add the whole thing to the conversation.
+
+After this runs, the inherited `Chat.run` loop takes over and talks to the AI as usual.
+
+#### The format converters (`_get_field`, `convert_prompt_message_to_message_param`, …)
+The doc server returns prompt messages in **MCP's format**, but the AI model expects plain dictionaries like `{"role": "user", "content": "..."}`. These bottom functions are **translators**:
+
+- `_get_field(item, key)` — reads a field whether the data is a dictionary (`.get()`) or a custom object (`getattr()`). It's the one place that knows about that difference.
+- `convert_prompt_message_to_message_param(...)` — converts **one** message into the AI's format (handling single-text, a list of text blocks, or nothing usable).
+- `convert_prompt_messages_to_message_params(...)` — runs the above on a **whole list** of messages.
+
+### Its role in the project
+
+Looking back at the app's flow:
+
+```
+main.py  →  creates MCPChat and hands it the doc server
+   │
+   ↓
+CliApp (core/cli.py)  →  reads what you type in the terminal
+   │
+   ↓
+MCPChat (core/mcp_chat.py)  →  resolves @docs and /commands  ← THIS FILE
+   │  (extends ↓)
+Chat (core/chat.py)  →  runs the conversation loop with the AI
+```
+
+So `mcp_chat.py` is the **document/command layer**. It sits between the terminal interface and the base conversation engine: it enriches your message with documents (or expands it from a command template) *before* handing it down to `Chat`, which does the actual back-and-forth with the AI. `cli.py` handles the terminal, `chat.py` handles the AI loop, and `mcp_chat.py` is the bridge that makes the chat document-aware.
