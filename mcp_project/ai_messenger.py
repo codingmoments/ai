@@ -90,7 +90,7 @@ class AIMessenger:
       # lets the model read the results and continue.
       for tc in message.tool_calls:
         print(
-            f"Model requested tool call {tc.function.name} with args {tc.function.arguments}")
+            f"\033[90mModel requested tool call {tc.function.name} with args {tc.function.arguments}\033[0m")
         args = json.loads(tc.function.arguments or "{}")
         output = await self.mcp_client.call_tool(tc.function.name, args)
         self.messages.append(

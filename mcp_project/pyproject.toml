@@ -1,0 +1,20 @@
+[project]
+name = "mcp-file-reader"
+version = "0.1.0"
+description = "A basic MCP project: server exposes a read_file tool, a CLI client lets you chat with Groq AI that can call the tool."
+requires-python = ">=3.10"
+dependencies = [
+    "mcp>=1.2.0",
+    "groq>=0.13.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.scripts]
+mcp-chat = "cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+include = ["mcp_server.py", "mcp_client.py", "ai_messenger.py", "cli.py"]

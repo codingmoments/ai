@@ -16,7 +16,10 @@ async def chat_loop() -> None:
   try:
     while True:
       try:
-        user_input = input("you> ").strip()
+        # \033[32m turns the text green
+        user_input = input("\033[32myou> ").strip()
+        # Reset the colour back to default after the input
+        print("\033[0m", end="", flush=True)
       except (EOFError, KeyboardInterrupt):
         print()
         break
@@ -26,7 +29,7 @@ async def chat_loop() -> None:
         break
       # Send the user's message to the AI and print the response.
       answer = await aiMessenger.ask(user_input)
-      print(f"ai> {answer}\n")
+      print(f"\033[32mai> {answer}\033[0m\n")
   finally:
     await aiMessenger.close()
     print("Bye.")
