@@ -5,10 +5,12 @@ on behalf of a caller. This isolates all MCP concerns (subprocess transport,
 session lifecycle, tool discovery and invocation) from the AI chat logic.
 """
 
+import json
 from contextlib import AsyncExitStack
 
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
+from pydantic import AnyUrl
 
 
 class MCPClient:
@@ -70,6 +72,17 @@ class MCPClient:
     parts = [c.text for c in result.content if getattr(
         c, "type", None) == "text"]
     return "\n".join(parts) if parts else "(no output)"
+
+  async def get_resource(self, uri: str):
+    """Read an MCP resource and return parsed JSON, or raw text otherwise."""
+    assert self.session is not None
+    result = await self.session.read_resource(AnyUrl(uri))
+    resource = result.contents[0]
+
+    if resource.mimeType == "application/json":
+      return json.loads(resource.text)
+    else:
+      return resource.text
 
   async def close(self) -> None:
     await self._stack.aclose()

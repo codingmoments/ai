@@ -102,5 +102,9 @@ class AIMessenger:
         )
       # Loop again so the model can use the tool results.
 
+  async def get_resource(self, uri: str):
+    """Read an MCP resource directly (app-controlled; the model is not involved)."""
+    return await self.mcp_client.get_resource(uri)
+
   async def close(self) -> None:
     await self.mcp_client.close()
