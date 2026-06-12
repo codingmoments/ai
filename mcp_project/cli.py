@@ -42,16 +42,17 @@ async def handle_prompt(aiMessenger: AIMessenger, command: str) -> None:
   """
   parts = command.split()
   name, args = parts[0].lower(), parts[1:]
-  prompt_name = name[1:]
   if name == "@format" and len(args) == 1:
     try:
-      prompts = await aiMessenger.get_prompt(prompt_name, {"path": args[0]})
+      # Get the prompt messages from the server, filling in the 'path' argument.
+      prompts = await aiMessenger.get_prompt("format", {"path": args[0]})
     except Exception as exc:
-      print(f"Error getting {prompt_name}: {exc}\n")
+      print(f"Error getting 'format' prompt: {exc}\n")
       return
   else:
     print("Command: @format <file_path>\n")
     return
+  # Send the MCP prompt messages to the AI and print the response.
   answer = await aiMessenger.ask(prompts[0].content.text)
   print(f"\033[32mai>\033[0m\n")
   print(f"\033[32m{answer}\033[0m\n")
@@ -62,6 +63,7 @@ async def chat_loop() -> None:
   await aiMessenger.initialize()
   print("Connected. Ask me anything (I can read local files). Type 'exit' to quit.")
   print("Resource commands: /employees, /employee <id>\n")
+  print("Prompt commands: @format <file_path>\n")
   try:
     while True:
       try:

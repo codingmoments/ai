@@ -96,17 +96,15 @@ class MCPClient:
     result = await self.session.list_prompts()
     return result.prompts
 
-  # Get a specific prompt by name and fill in its arguments.
-  # If the server accepts 'path' as an argument, then this function
-  # should be called with something like {"path": "data.txt"}.
-  # The server will run the corresponding @mcp.prompt function and
-  # return the result as a list of messages.
+  # Get a specific prompt by name, interpolating any arguments it needs.
+  # If the server accepts 'path' as an argument, then this function should
+  # be called with something like {"path": "data.txt"}.
   async def get_prompt(self, prompt_name: str, args: dict[str, str]) -> list[base.Message]:
-    """Get a specific prompt by name and fill in its arguments."""
+    """Get a specific prompt by name, interpolating any arguments it needs."""
     assert self.session is not None
     result = await self.session.get_prompt(prompt_name, args)
-    # The prompt result is a list of messages (like a chat conversation), which can be passed
-    # directly to the AI as context.
+    # The prompt result is a list of messages (like a chat conversation), 
+    # which can be passed directly to the AI model as context.
     return result.messages
 
   async def close(self) -> None:
