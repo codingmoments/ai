@@ -72,8 +72,10 @@ def format_document(path: str = Field("Path to the file")) -> list[base.Message]
   """
   prompt = f"Your goal is to reformat the contents of the file at {path} into a Markdown format. " \
       "Please read the file and rewrite its contents in Markdown. " \
+      "The file can contain any kind of text, such as SQL queries, hyperlinks, or other structured data. " \
       "You can use headings, lists, code blocks, and other Markdown features to improve the readability of the document. " \
       "Make sure to preserve the original meaning and information while enhancing the structure and presentation. " \
+      "Do not add any new information that is not present in the original document. " \
       "Once you have reformatted the document, return the Markdown content as a string."
   return [base.UserMessage(prompt)]
 

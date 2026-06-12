@@ -106,5 +106,9 @@ class AIMessenger:
     """Read an MCP resource directly (app-controlled; the model is not involved)."""
     return await self.mcp_client.get_resource(uri)
 
+  async def get_prompt(self, prompt_name: str, args: dict[str, str]) -> list[base.Message]:
+    """Get an MCP prompt """
+    return await self.mcp_client.get_prompt(prompt_name, args)
+
   async def close(self) -> None:
     await self.mcp_client.close()

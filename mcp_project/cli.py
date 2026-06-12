@@ -37,6 +37,26 @@ async def handle_command(aiMessenger: AIMessenger, command: str) -> None:
   print(f"\033[32m{answer}\033[0m\n")
 
 
+async def handle_prompt(aiMessenger: AIMessenger, command: str) -> None:
+  """Handle a @prompt command by fetching an MCP prompt directly.
+  """
+  parts = command.split()
+  name, args = parts[0].lower(), parts[1:]
+  prompt_name = name[1:]
+  if name == "@format" and len(args) == 1:
+    try:
+      prompts = await aiMessenger.get_prompt(prompt_name, {"path": args[0]})
+    except Exception as exc:
+      print(f"Error getting {prompt_name}: {exc}\n")
+      return
+  else:
+    print("Command: @format <file_path>\n")
+    return
+  answer = await aiMessenger.ask(prompts[0].content.text)
+  print(f"\033[32mai>\033[0m\n")
+  print(f"\033[32m{answer}\033[0m\n")
+
+
 async def chat_loop() -> None:
   aiMessenger = AIMessenger()
   await aiMessenger.initialize()
@@ -59,6 +79,9 @@ async def chat_loop() -> None:
       # Slash commands read MCP resources directly: no AI round-trip.
       if user_input.startswith("/"):
         await handle_command(aiMessenger, user_input)
+        continue
+      if user_input.startswith("@"):
+        await handle_prompt(aiMessenger, user_input)
         continue
       # Send the user's message to the AI and print the response.
       print(f"\033[90mSending to AI: {user_input}\033[0m\n")

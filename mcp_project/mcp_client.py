@@ -8,8 +8,9 @@ session lifecycle, tool discovery and invocation) from the AI chat logic.
 import json
 from contextlib import AsyncExitStack
 
-from mcp import ClientSession, StdioServerParameters
+from mcp import ClientSession, StdioServerParameters, types
 from mcp.client.stdio import stdio_client
+from mcp.server.fastmcp.prompts import base
 from pydantic import AnyUrl
 
 
@@ -73,16 +74,35 @@ class MCPClient:
         c, "type", None) == "text"]
     return "\n".join(parts) if parts else "(no output)"
 
+  # Get an MCP resource by URI. If it's JSON, parse it and return the data structure.
   async def get_resource(self, uri: str):
     """Read an MCP resource and return parsed JSON, or raw text otherwise."""
     assert self.session is not None
+    # Read the resource from the server. The server will run the corresponding
+    # @mcp.resource function and return the result as text.
     result = await self.session.read_resource(AnyUrl(uri))
     resource = result.contents[0]
 
     if resource.mimeType == "application/json":
+      # If the resource is JSON, parse it and return the data structure.
       return json.loads(resource.text)
     else:
       return resource.text
+
+  # List the prompts that the server offers
+  async def list_prompts(self) -> list[types.Prompt]:
+    """List the prompts that the MCP server offers."""
+    assert self.session is not None
+    result = await self.session.list_prompts()
+    return result.prompts
+
+  # Get a specific prompt by name and fill in its arguments. The server will run
+  # the corresponding @mcp.prompt function and return the result as a list of messages.
+  async def get_prompt(self, prompt_name: str, args: dict[str, str]) -> list[base.Message]:
+    """Get a specific prompt by name and fill in its arguments."""
+    assert self.session is not None
+    result = await self.session.get_prompt(prompt_name, args)
+    return result.messages
 
   async def close(self) -> None:
     await self._stack.aclose()
