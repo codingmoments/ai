@@ -3,3 +3,4 @@ claude_code/.idea/
 claude_code/package-lock.json
 cli_project/app.egg-info/
 mcp_project/uv.lock
+*.env
