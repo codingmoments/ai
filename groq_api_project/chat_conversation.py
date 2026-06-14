@@ -34,6 +34,12 @@ def chat(messages: list[dict]) -> str:
 # conversation history; each dict is one turn
 messages: list[dict] = []
 
+# Add a system message to set the behavior of the assistant
+messages.append({
+    "role": "system",
+    "content": "Answer in less than 10 words."
+})
+
 while True:
   user_input = input("User: ")
   if user_input.lower() in ["exit", "quit"]:
