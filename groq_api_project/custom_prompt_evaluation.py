@@ -56,6 +56,11 @@ def grade_by_model(test_case: str, output: str) -> dict:
     <solution>
       {output}
     </solution>
+
+    Criteria for evaluation:
+    <criteria>
+      {test_case["solution_criteria"]}
+    </criteria>
     
     Provide your evaluation as a structured JSON object with the following fields:
     - "reasoning": A concise explanation of your assessment
@@ -157,18 +162,22 @@ eval_dataset_prompt = """
   ```json
   [
     {
-      "task": "Description of task"
+      "task": "Description of task",
+      "solution_criteria": "Criteria for evaluating the solution"
     },
     {
-      "task": "Description of task"
+      "task": "Description of task",
+      "solution_criteria": "Criteria for evaluating the solution"
     }
   ]
   ```
   * Focus on tasks that can be solved by writing a single Python function.
   * Focus on tasks that do not require writing much code
+  * Always include proper exception handling in the solution criteria.
+  * Always include input validation in the solution criteria.
   Please generate 3 objects,
 
-  Make sure that the JSON object is valid and can be parsed without errors and contains only the field "task".
+  Make sure that the JSON object is valid and can be parsed without errors and contains only the fields "task" and "solution_criteria".
   """
 
 # Ask the model to generate the evaluation dataset
