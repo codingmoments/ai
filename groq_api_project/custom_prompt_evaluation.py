@@ -29,11 +29,14 @@ def run_prompt(test_case: str) -> str:
   """Merges the test case into the prompt and runs it through the model."""
   prompt = f"""  Here is a task: {test_case["task"]}
   Please write a Python function that completes the task.
+  Do not include any explanations, just provide the code.
+  Make sure to include only the code in your response, without any additional text or formatting.
   """
 
   messages = []
   add_user_message(messages, prompt)
-  output = chat(messages)
+  add_assistant_message(messages, "```python")
+  output = chat(messages, stop_sequence="```")
   return output
 
 
@@ -78,6 +81,25 @@ def grade_by_model(test_case: str, output: str) -> dict:
   return json.loads(eval_response)
 
 
+def validate_python_code(code: str) -> int:
+  """Validates if the provided code is syntactically correct Python code."""
+  try:
+    compile(code, "<string>", "exec")
+    return 10
+  except SyntaxError:
+    return 0
+
+
+def grade_by_syntax(output: str) -> dict:
+  """Grades the output based on whether it is valid Python code."""
+  score = validate_python_code(output)
+  reasoning = "The code is syntactically correct." if score == 10 else "The code has syntax errors."
+  return {
+      "reasoning": reasoning,
+      "score": score
+  }
+
+
 def run_test_case_evaluation(test_case: str):
   """Runs the test case and grades the output."""
   output = run_prompt(test_case)
@@ -85,6 +107,10 @@ def run_test_case_evaluation(test_case: str):
   model_grade = grade_by_model(test_case, output)
   score = model_grade["score"]
   reasoning = model_grade["reasoning"]
+
+  syntax_grade = grade_by_syntax(output)
+  score = (score + syntax_grade["score"]) / 2
+  reasoning += " " + syntax_grade["reasoning"]
 
   return {
       "test_case": test_case,
@@ -100,9 +126,6 @@ def run_evaluation(eval_dataset):
   for test_case in eval_dataset:
     result = run_test_case_evaluation(test_case)
     results.append(result)
-
-  average_score = mean(result["score"] for result in results)
-  print(f"Average Score: {average_score:.2f}")
 
   return results
 
@@ -162,3 +185,6 @@ results = run_evaluation(eval_dataset)
 
 print("Evaluation Results:")
 print(json.dumps(results, indent=2))
+
+average_score = mean(result["score"] for result in results)
+print(f"Average Score: {average_score:.2f}")
