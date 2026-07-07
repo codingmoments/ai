@@ -639,6 +639,7 @@ class PromptEvaluator:
 
 evaluator = PromptEvaluator(max_concurrent_tasks=1)
 
+'''
 dataset = evaluator.generate_dataset(
     # Describe the purpose or goal of the prompt you're trying to test
     task_description="Write a compact, concise 1 day meal plan for a single athelete",
@@ -654,15 +655,26 @@ dataset = evaluator.generate_dataset(
     # Number of test cases to generate (recommend keeping this low if you're getting rate limit errors)
     num_cases=3,
 )
-
+'''
 
 def run_prompt(prompt_inputs):
   prompt = f"""
-    What should this person eat in a single day to achieve their goal, given the following information:
+    Generate a one-day meal plan for an athlete.
+
+    <athelete_information>
     - Height: {prompt_inputs['height']} cm
     - Weight: {prompt_inputs['weight']} kg
     - Goal: {prompt_inputs['goal']}
     - Restrictions: {prompt_inputs['restrictions']}
+    </athelete_information>
+
+    Guidelines:
+    1. Include accurate daily calorie amount
+    2. Show protein, fat, and carb amounts  
+    3. Specify when to eat each meal
+    4. Use only foods that fit restrictions
+    5. List all portion sizes in grams
+    6. Keep budget-friendly if mentioned
     """
 
   messages = []
