@@ -675,6 +675,126 @@ def run_prompt(prompt_inputs):
     4. Use only foods that fit restrictions
     5. List all portion sizes in grams
     6. Keep budget-friendly if mentioned
+
+    Here is an example with a sample input and an ideal output:
+    <sample_input>
+      height: 180
+      weight: 70
+      goal: match preparation
+      restrictions: gluten-free, high carbohydrate
+    </sample_input>
+    <ideal_output>
+      **One-Day Meal Plan for Athlete (Match Preparation)**
+
+      **Athlete Information:**
+      - Height: 180 cm
+      - Weight: 70 kg
+      - Goal: Match preparation
+      - Restrictions: Gluten-free, high carbohydrate
+
+      **Daily Nutritional Goals:**
+      - Calories: Approximately 2500-2800 kcal (for optimal energy levels and performance)
+      - Macronutrient Breakdown:
+        - Carbohydrates: 350-400 grams (High carb for energy)
+        - Protein: 120-150 grams (Supports muscle repair and recovery)
+        - Fat: 70-80 grams (Provides essential fatty acids and supports overall health)
+
+      **Meal Plan:**
+
+      ### Breakfast (7:00 AM)
+      - **Gluten-free Oatmeal with Banana and Almonds**
+        - 300g Gluten-free oats
+        - 150g Banana
+        - 20g Almonds
+        - 300ml Low-fat milk (or milk alternative)
+        
+        **Approximate Nutritional Content:**
+        - Calories: 550
+        - Protein: 15g
+        - Fat: 15g
+        - Carbohydrates: 90g
+
+      ### Mid-Morning Snack (10:00 AM)
+      - **Apple Slices with Peanut Butter**
+        - 150g Apple slices
+        - 30g Peanut butter
+        
+        **Approximate Nutritional Content:**
+        - Calories: 195
+        - Protein: 8g
+        - Fat: 16g
+        - Carbohydrates: 20g
+
+      ### Lunch (12:30 PM)
+      - **Grilled Chicken Breast with Quinoa and Steamed Vegetables**
+        - 120g Grilled chicken breast
+        - 200g Cooked quinoa (gluten-free)
+        - 200g Steamed mixed vegetables (such as broccoli, carrots, bell peppers)
+        
+        **Approximate Nutritional Content:**
+        - Calories: 500
+        - Protein: 35g
+        - Fat: 10g
+        - Carbohydrates: 60g
+
+      ### Pre-Workout Snack (3:00 PM)
+      - **Gluten-free Energy Bar and Fresh Orange**
+        - 1 Gluten-free energy bar (approx. 200g, ensure it's high in carbs and within calorie and macronutrient goals)
+        - 150g Fresh orange
+        
+        **Approximate Nutritional Content (varies by specific product):**
+        - Assume approximately 200-250 kcal, 30-40g carbs, 5-10g protein, 5-10g fat
+
+      ### Post-Workout Snack (5:00 PM)
+      - **Smoothie with Protein Powder, Banana, and Almond Milk**
+        - 30g Gluten-free protein powder
+        - 150g Banana
+        - 300ml Almond milk
+        
+        **Approximate Nutritional Content:**
+        - Calories: 300
+        - Protein: 30g
+        - Fat: 15g
+        - Carbohydrates: 40g
+
+      ### Dinner (7:30 PM)
+      - **Grilled Salmon with Sweet Potato and Green Beans**
+        - 120g Grilled salmon
+        - 200g Baked sweet potato
+        - 200g Steamed green beans
+        
+        **Approximate Nutritional Content:**
+        - Calories: 500
+        - Protein: 35g
+        - Fat: 20g
+        - Carbohydrates: 60g
+
+      ### Before Bed Snack (9:30 PM)
+      - **Cottage Cheese with Fresh Fruit**
+        - 200g Low-fat cottage cheese
+        - 150g Fresh fruit (such as berries or sliced peaches)
+        
+        **Approximate Nutritional Content:**
+        - Calories: 200
+        - Protein: 25g
+        - Fat: 5g
+        - Carbohydrates: 10g
+
+      **Total Daily Intake:**
+      - Calories: Approximately 2645
+      - Protein: 143g
+      - Fat: 76g
+      - Carbohydrates: 390g
+
+      **Budget-Friendly Tips:**
+      - Opt for seasonal fruits and vegetables to save on costs.
+      - Buy gluten-free oats and quinoa in bulk.
+      - Choose store-brand or generic gluten-free products when possible.
+      - Consider purchasing a protein powder that offers a cost-effective option without compromising on quality.
+
+      This meal plan is designed to meet the athlete's specific needs for match preparation, adhering to gluten-free and high carbohydrate requirements. Adjustments can be made based on individual preferences and specific dietary needs. It's always recommended to consult with a sports dietitian for personalized meal planning.
+    </ideal_output>
+    This example output meets all mandatory requirements by providing a 1-day meal plan, ensuring high carbohydrate intake, and including meals with exact foods, portion sizes, and timing. It also provides daily caloric totals and macronutrient breakdowns. However, it fails to include specific hydration recommendations, which is a secondary criterion. Despite this, the solution is comprehensive and well-structured, meeting most criteria effectively.
     """
 
   messages = []
