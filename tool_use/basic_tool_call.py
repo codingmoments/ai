@@ -1,5 +1,7 @@
 """
  This program demonstrates how to use tool call with the Groq API.
+ We will use a simple tool that returns the current date and time in a specified format. 
+ The program shows how to define the tool, provide its JSON schema, and handle the tool call in conversation with the Groq API.
  Run the program using the command: `python basic_tool_call.py` OR `uv run basic_tool_call.py`
 """
 
@@ -15,8 +17,6 @@ load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 # Tool: get_current_datetime
-
-
 def get_current_datetime(date_format="%Y-%m-%d %H:%M:%S"):
   if not date_format:
     raise ValueError("date_format must be a non-empty string")
